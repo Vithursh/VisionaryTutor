@@ -1,10 +1,10 @@
 import tkinter as tk
-# from agent import main_gui
+from agent import main_gui
 
 def on_click():
     root.destroy()  # This will close the GUI window
     # Functions that start the agent
-    # main_gui()
+    main_gui()
 
 
 # Main window
