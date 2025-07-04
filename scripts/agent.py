@@ -1,17 +1,41 @@
 import tkinter as tk
 import cv2
 import numpy as np
-from PIL import ImageGrab
+from PIL import ImageGrab, Image
 from time import sleep
 import ctypes
+from google import genai
+from dotenv import load_dotenv
+from google.genai import types
+import os
+import glob
+
+load_dotenv()  
+
+# The client reads GEMINI_API_KEY from your environment
+api_key = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=api_key)
+
+text = ""
 
 
-def convert_speaker_to_text(speaker):
+def convert_speach_to_text():
     pass
 
 
 def start_agent():
-    pass
+    uploaded = client.files.upload(file="screenshot.png")
+
+    response = client.models.generate_content(
+        model="gemini-2.5-pro",
+        contents=[
+            "I'm a student. Can you explain to me whats on my web browser:",
+            uploaded
+        ],
+    )
+    print(response.text)
+    print("Removing screenshot...")
+    os.remove("screenshot.png")
 
 
 def minimize_window_capture():
@@ -65,16 +89,18 @@ def main_gui():
     # Main window
     root = tk.Tk()
     root.title("VisionaryTutor")
-    root.geometry("200x200")
-
-    # Widgets
-    # label = tk.Label(root, text="Welcome to Tkinter")
-    # label.pack(pady=10)
+    root.geometry("200x300")
 
     capture = tk.Button(root, text="Capture part of screen", command=minimize_window_capture, width=22, height=5, font=("Arial", 10))
     full_capture = tk.Button(root, text="Full Capture", command=minimize_window_full, width=22, height=5, font=("Arial", 10))
+    mic = tk.Button(root, text="Mic On", command=convert_speach_to_text, width=22, height=5, font=("Arial", 10))
     capture.pack(pady=5)
     full_capture.pack(pady=5)
+    mic.pack(pady=5)
 
-    # Start the GUI loop
-    root.mainloop()
+    pngs = glob.glob("screenshot.png") # len(pngs) == 0 means we have no matches
+
+    if len(pngs) != 0 and text:
+        # Start the GUI loop
+        root.mainloop()
+        start_agent()
